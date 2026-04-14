@@ -480,6 +480,11 @@ class TelegramTool:
         try:
             src_e = await self.client.get_entity(src)
             dst_e = await self.client.get_entity(dst)
+            src_name = getattr(src_e, "title", None) or getattr(src_e, "username", src)
+            dst_name = getattr(dst_e, "title", None) or getattr(dst_e, "username", dst)
+            self._log(self.fw_log, f"✅ 来源确认：{src_name}")
+            self._log(self.fw_log, f"✅ 目标确认：{dst_name}")
+            self._log(self.fw_log, "👂 正在监听新消息，等待转发...")
 
             @self.client.on(events.NewMessage(chats=src_e))
             async def handler(event):
@@ -491,6 +496,13 @@ class TelegramTool:
                     return
                 await self.client.forward_messages(dst_e, event.message)
                 self._log(self.fw_log, f"✅ 已转发: {text[:60]}")
+
+            # 保持协程存活，持续接收事件
+            while self.forwarding_active:
+                await asyncio.sleep(1)
+
+            self.client.remove_event_handler(handler)
+
         except Exception as e:
             self._log(self.fw_log, f"❌ 错误: {e}")
             self._ui(self._stop_forward)
