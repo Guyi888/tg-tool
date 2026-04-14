@@ -176,8 +176,8 @@ class TelegramTool:
     def _async(self, coro):
         return asyncio.run_coroutine_threadsafe(coro, self.loop)
 
-    def _ui(self, fn, *args):
-        self.root.after(0, fn, *args)
+    def _ui(self, fn, *args, **kwargs):
+        self.root.after(0, lambda: fn(*args, **kwargs))
 
     # ── 配置 ──────────────────────────────────────────────────────────────────
 
