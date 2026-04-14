@@ -564,14 +564,22 @@ class TelegramTool:
     async def _fetch_members(self, group):
         try:
             entity = await self.client.get_entity(group)
-            parts  = await self.client.get_participants(entity, limit=200)
+            self._log(self.grp_log, "正在获取成员，大群可能需要一两分钟...")
             self._ui(self.grp_list.delete, 0, tk.END)
+
+            # aggressive=True 通过字母搜索多次请求，能获取更多成员
+            parts = await self.client.get_participants(entity, aggressive=True)
+
             for p in parts:
                 name  = f"{p.first_name or ''} {p.last_name or ''}".strip()
                 uname = f"@{p.username}" if p.username else f"ID:{p.id}"
                 self._ui(self.grp_list.insert, tk.END,
                          f"  {name:<22} {uname}")
             self._log(self.grp_log, f"✅ 已加载 {len(parts)} 名成员")
+            if len(parts) < 100:
+                self._log(self.grp_log,
+                          "⚠ 获取数量较少：Telegram 对非管理员有限制，"
+                          "管理员权限可获取完整名单")
         except Exception as e:
             self._log(self.grp_log, f"❌ {e}")
 
