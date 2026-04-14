@@ -1,0 +1,7 @@
+dist/
+build/
+__pycache__/
+*.spec
+*.session
+*.session-journal
+config.json
