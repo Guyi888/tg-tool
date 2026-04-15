@@ -1,6 +1,6 @@
 @echo off
 echo 正在安装依赖...
-pip install telethon plyer pyinstaller
+pip install telethon plyer customtkinter pyinstaller
 
 echo.
 echo 正在打包为 exe...
